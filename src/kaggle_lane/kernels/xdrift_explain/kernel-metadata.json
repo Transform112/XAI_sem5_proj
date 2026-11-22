@@ -1,0 +1,18 @@
+{
+  "id": "mysteriousavailable/xdrift-explain",
+  "title": "xdrift explain",
+  "code_file": "script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "mysteriousavailable/xdrift-nf-unsw-c1-inputs",
+    "mysteriousavailable/xdrift-runctl"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

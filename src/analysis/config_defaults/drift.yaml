@@ -1,0 +1,106 @@
+# =============================================================================
+# PROPOSED DEFAULTS for `configs/drift.yaml` (S8/S9 drift metrics + noise floor)
+#
+# Status: PROPOSAL by analyst (T19), materialised into `configs/drift.yaml` by
+# the engineer. Authority: docs/05_EXPERIMENT_PROTOCOL.md §8 (drift metrics) and
+# §9 (noise floor / excess drift / H1), docs/source_documents/Doc 2b §S8–S9, and the frozen
+# conventions A1–A10 accepted in docs/DECISIONS.md D-043. Changing any numeric
+# value here after the first real S8 run requires a docs/DECISIONS.md entry.
+# Implementation: analysis.metrics_drift, analysis.noise_floor, analysis.stats,
+# analysis.tables (D-044: these modules are the authoritative definitions).
+# =============================================================================
+schema_version: 1
+dataset: NF-UNSW-NB15-v3
+stream: C1_session_aware_1_4          # D-026, frozen at G1c
+protocol_version: 1
+source: docs/05 §8–§9; Doc 2b S8–S9; D-043 conventions A1–A10
+
+# --- S8 similarity family ----------------------------------------------------
+metrics:
+  feature:                            # docs/05 §8: all reported, primary fixed
+    cosine:      {enabled: true, target: signed_attribution_vector}
+    jaccard_topk: {enabled: true, k: [3, 5, 10]}
+    spearman:    {enabled: true, target: full_attribution_vector}
+    # PRIMARY (frozen): drift = 1 - Jaccard(top-5 feature sets), IG only
+    primary: jaccard_top5
+  edge:                               # docs/05 §8: edge-mask metrics for GNNExplainer
+    jaccard_topm: {enabled: true, m: 5}
+    cosine:       {enabled: true, target: edge_mask_vector}
+    primary: edge_jaccard_top5
+  drift_definition: "drift = 1 - similarity"   # Doc 2b S8; report the whole vector
+  report_all_metrics: true            # never only the primary (docs/05 §8)
+  conventions:                        # A1–A3 (D-043)
+    topk_ranking: absolute_value_descending_ties_ascending_id
+    cosine_zero_norm: {both_zero: 1.0, one_zero: 0.0}
+    spearman_drift_clip: none
+
+# --- Aggregation (docs/05 §8–§9, §13) ---------------------------------------
+aggregation:
+  unit: anchor                        # bootstrap unit = anchor (Doc 2b S9 check)
+  summarise: [mean, median]           # per class and period pair
+  macro_over_classes: true            # never average classes without macro weighting (Doc 2b S8)
+  stratify_by: class
+  bootstrap:
+    resamples: 1000                   # docs/05 §13
+    alpha: 0.05
+    percentile_method: numpy_linear   # A5 (D-043)
+    seed: 42
+
+# --- S8/S9 noise floor -------------------------------------------------------
+noise_floor:
+  # Doc 2b S8 components; docs/05 §9; A6/A7 conventions
+  channel_primary: model_null         # A6: C1 wording = "null-update 95th-percentile floor"
+  components:
+    explainer_repeat:
+      enabled: true
+      repeats: 10                     # docs/05 §9 (GNNExplainer seeds)
+      stratified_subset_anchors_per_period: 100
+    model_null:
+      enabled: true
+      reseeds: 5                      # docs/05 §9
+      retrain_on: same_period_j
+      strategy: ft                    # "retrain the model on the same period-j data ... FT on j"
+      same_architecture: true
+      explainer_seed: same_as_real    # null pairs reuse the real explainer seed
+    combined:
+      enabled: false                  # reported as a robustness channel when computed
+  quantile: 0.95                      # docs/05 §9
+  pooling:
+    by: [explainer, class]            # Doc 2b S8: class + explainer
+    min_pairs_per_class: 20           # A7: below this, fall back to global pool
+    fallback: global_pool
+    record_threshold_source: true     # writes threshold_source per row
+  canary:
+    ig_repeat_drift_must_be: 0.0      # deterministic explainer (Doc 2b S8 check)
+    model_null_drift_must_be_positive: true
+  excess:
+    definition: drift_real - drift_null_mean_per_anchor   # Doc 2b S8 / docs/05 §9
+    above_floor_definition: drift_real > q95(explainer, class)   # strict >
+    report: [drift_real, drift_null_mean, excess, above_floor]   # side by side
+
+# --- H1 test family (docs/05 §9; Doc 2b S9) ---------------------------------
+h1:
+  expected_above_fraction: 0.05       # by construction
+  tests:
+    - stratified_bootstrap_fraction_ci
+    - binomial_exact_greater
+    - normal_approximation_greater
+    - wilcoxon_signed_rank_excess_two_sided
+  holm_family: [strategy, model, explainer]
+  holm_report: [raw, adjusted]
+  effect_sizes: [rank_biserial]
+  retained_fraction_reported_alongside: true   # anchors are conditioned on stable predictions
+
+# --- Inputs / outputs (artifact contract frozen by D-043) --------------------
+inputs:
+  explanation_index: results/text/tables/explain_index.csv
+  anchor_sets: results/text/anchors/period_{j}.pt
+  per_class_f1: results/text/tables/cl_per_class_f1.json
+outputs:
+  drift_metrics_csv: results/text/tables/drift_metrics_{explainer}.csv
+  noise_floor_csv: results/text/tables/noise_floor.csv
+  rq1_anchor_level_csv: results/text/tables/rq1_anchor_level.csv
+  rq1_aggregated_csv: results/text/tables/rq1_aggregated.csv
+  rq1_h1_tests_csv: results/text/tables/rq1_h1_tests.csv
+  rq1_strategy_comparison_csv: results/text/tables/rq1_strategy_comparison.csv
+  figures_prefix: results/images/s8_

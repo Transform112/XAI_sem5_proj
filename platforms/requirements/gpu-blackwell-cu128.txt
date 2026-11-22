@@ -1,0 +1,5 @@
+# CANONICAL LANE: user's PC / RTX 5060 8 GB (Blackwell, sm_120) - needs CUDA 12.8+ wheels
+# Verified reachable: torch-2.7.1+cu128-cp312-cp312-win_amd64.whl
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.7.1+cu128
+torch_geometric==2.7.0

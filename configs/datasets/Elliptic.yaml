@@ -1,0 +1,27 @@
+# =============================================================================
+# Elliptic / Elliptic++ - NON-NIDS alternative domain (Doc 1 out-of-scope for the
+# primary study; evaluated by the dataset/domain review only).
+#
+# Elliptic is a temporal transaction graph (node classification), NOT edge
+# classification NetFlow data. Its schema differs from NF-v3 entirely, so it
+# inherits no columns from _common_nf_v3.yaml. This spec is only used by the
+# identity stage to verify the downloaded archive; the project's edge-level
+# pipeline does not run on it unless the Lead's decision changes the domain.
+# =============================================================================
+name: Elliptic
+role: alternative-domain
+source:
+  provider: Elliptic (Weber et al., 2019) via Kaggle mirror ellipticco/elliptic-data-set
+  mirror: kaggle://ellipticco/elliptic-data-set
+  url: https://www.kaggle.com/api/v1/datasets/download/ellipticco/elliptic-data-set
+  licence: public research dataset
+published:
+  flows: null
+  classes: null
+  notes: bitcoin transaction graph (nodes = transactions); counts verified from the archive.
+raw:
+  csv_glob: "**/*.csv"
+  expected_csv_count: 0
+schema: elliptic
+columns: {}
+class_order: null

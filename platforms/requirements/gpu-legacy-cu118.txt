@@ -1,0 +1,6 @@
+# LEGACY DEV LANE: current PC / GTX 1050 (3 GB, driver 457.49 = CUDA 11.1)
+# torch cu118 wheels run on CUDA 11.x drivers via minor-version compatibility.
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.4.1+cu118
+# PyTorch Geometric version paired with torch 2.4.x
+torch_geometric==2.6.1

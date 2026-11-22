@@ -1,0 +1,77 @@
+# XDRIFT repository ignore rules
+# ---------------------------------------------------------------------------
+# The huge datasets payload stays local: raw CSV, processed PyG graphs and
+# frozen split masks are reproducible/available through the documented data
+# contract. Only provenance/manifest files are tracked.
+# ---------------------------------------------------------------------------
+
+# Python / editor / OS
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+Thumbs.db
+Desktop.ini
+
+# Local-only dataset payload (tracked: datasets/provenance.json,
+# datasets/manifests/, dataset READMEs)
+datasets/raw/*
+!datasets/raw/README.md
+datasets/processed/*
+!datasets/processed/README.md
+datasets/splits/*
+!datasets/splits/README.md
+datasets/cache/
+datasets/graphs/
+
+# Step 06 training outputs: smoke/pilot files are local engineering checks, not
+# signed paper evidence. Promote a run's summary deliberately before committing.
+results/text/train/
+# Step 07 explanation corpus is regenerable; promote only deliberate release files.
+results/text/explanations/
+results/text/data_audit/explanations/
+results/text/tables/explain_index_main.csv
+results/images/train/
+analysis/train/
+
+# Large run artifacts / caches. Manifests and logs remain tracked.
+results/text/runs/*
+!results/text/runs/manifests/
+!results/text/runs/manifests/**
+!results/text/runs/logs/
+!results/text/runs/logs/**
+results/text/cache/
+results/text/explanations_noise/
+*.pt
+*.pth
+*.npz
+*.npy
+
+# Downloads / generated archives
+*.zip
+*.bundle
+*.log
+*.tmp
+.tmp/
+
+# Agent/runtime metadata (not part of the research artifact)
+.dsh/
+.dsh-office-*/
+.agent/
+
+# Raw literature captures are local-only; curated notes + bib are tracked.
+docs/archive/literature_raw/
+
+# Kaggle lane: source/kernels tracked; downloaded kernel outputs are local-only
+src/kaggle_lane/outputs/
+src/kaggle_lane/runs/
+
+# Local tools (root-only; numbered main-pipeline tools under src/main/tools are tracked)
+/tools/
+
+# CICIDS2018 reduced replication: local diagnostic sample outputs (not paper evidence)
+results/images/*/NF-CSE-CIC-IDS2018-v3-sample/
+results/text/data_audit/*/NF-CSE-CIC-IDS2018-v3-sample*
+results/text/tables/decoder_compare_cic_smoke/

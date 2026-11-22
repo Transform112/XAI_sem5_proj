@@ -1,0 +1,19 @@
+# =============================================================================
+# CANONICAL LANE - the user's PC.
+#   GPU : NVIDIA RTX 5060, 8 GB, Blackwell sm_120 -> torch 2.7.1+cu128
+#   Role: canonical training lane for every headline result (5 seeds, all
+#         strategies). CUDA is required: a CPU fallback here would invalidate
+#         the compute budget and the determinism assumptions.
+# =============================================================================
+lane:
+  name: rtx5060
+  role: canonical
+  description: Windows PC (RTX 5060 8 GB, Blackwell sm_120, 32 GB RAM)
+  torch_pin: "2.7.1+cu128"
+  requirements: platforms/requirements/gpu-blackwell-cu128.txt
+  cuda_required: true
+  python: python
+
+env:
+  CUBLAS_WORKSPACE_CONFIG: ":4096:8"
+  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"

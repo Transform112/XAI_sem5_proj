@@ -1,0 +1,38 @@
+# =============================================================================
+# Canonical path contract for every lane (loaded first, then the lane file).
+#
+# A value of the form "env:NAME" is read from environment variable NAME; when it
+# is unset the key's entry in `defaults` is used and resolved against the
+# project root (the directory containing platforms/ and src/). Code must never
+# hard-code absolute paths: entry points receive --lane/--config and resolve
+# everything through src/utils/paths.py.
+#
+# Lane files (legacy/rtx5060/kaggle/cpu) only override what genuinely differs.
+# =============================================================================
+schema_version: 1
+
+# auto = repository root, discovered by src/utils/paths.py (XDRIFT_ROOT wins).
+project_root: auto
+
+# The four user-facing roots. Relative fallbacks live under the project root.
+data_root: env:XDRIFT_DATA
+runs_root: env:XDRIFT_RUNS
+cache_root: env:XDRIFT_CACHE
+results_root: env:XDRIFT_RESULTS
+
+defaults:
+  data_root: datasets
+  runs_root: results/text/runs
+  cache_root: cache
+  results_root: results
+
+# Derived locations (computed in src/utils/paths.py, overridable per lane):
+#   data_root/raw            raw dataset archives and extracted files
+#   data_root/processed      processed period tables
+#   data_root/splits         frozen split masks + hashes
+#   data_root/graphs         PyG graph objects per period
+#   runs_root/manifests      run manifests (reproducibility records)
+#   runs_root/logs           stage logs
+#   results_root/text/data_audit  data-audit scorecards and identity reports
+#   results_root/text/explanations
+#   results_root/images, results_root/text/tables

@@ -1,0 +1,55 @@
+# =============================================================================
+# NF-UNSW-NB15-v3 - PRIMARY dataset (Doc 1 section 7).
+#
+# Verified 2026-11-01 against datasets/raw/NF-UNSW-NB15-v3/NF-UNSW-NB15-v3.csv:
+#   55 columns, `Label` = binary 0/1, `Attack` = one of the 10 classes below.
+# Published totals (paper arXiv:2503.04404v3 Tables 2-3): 2,365,424 flows.
+# D-013: the paper + raw CSV are authoritative; the UQ website permutes
+# Analysis/Backdoor/Shellcode and is not used as ground truth.
+# Measured distribution (scripts/verify_datasets.py): Analysis 1,226,
+# Backdoor 4,659, Shellcode 2,381, Worms 158, total exactly 2,365,424.
+# =============================================================================
+name: NF-UNSW-NB15-v3
+schema: nf_v3
+role: primary
+source:
+  provider: University of Queensland NIDS NetFlow-v3 family (Sarhan et al.)
+  mirror: kaggle://seyhed/nf-unsw-nb15-v3
+  url: https://www.kaggle.com/api/v1/datasets/download/seyhed/nf-unsw-nb15-v3
+  licence: research use; cite the UQ NetFlow-v3 dataset paper
+  authoritative_source: >-
+    Luay et al., "Temporal Analysis of NetFlow Datasets for Network Intrusion
+    Detection Systems", IEEE Access 2026 (DOI 10.1109/ACCESS.2026.3688204;
+    arXiv:2503.04404v3, Tables 2-3) plus the raw CSV itself.
+  website_errata: >-
+    UQ website class table permutes Analysis/Backdoor/Shellcode. Paper values
+    pinned below; verified against the CSV (label total sums exactly to the
+    published 2,365,424 flows).
+published:
+  flows: 2365424
+  # Paper Table 3 values (arXiv:2503.04404v3) - authoritative per D-013.
+  classes:
+    Benign: 2237731
+    Analysis: 1226
+    Backdoor: 4659
+    DoS: 5980
+    Exploits: 42748
+    Fuzzers: 33816
+    Generic: 19651
+    Reconnaissance: 17074
+    Shellcode: 2381
+    Worms: 158
+  attack_total: 127693
+  binary_label: {0: 2237731, 1: 127693}
+  # UQ website values (known to be wrong; shown in the identity report as a
+  # discrepancy column and never used to fail a check - D-013/D-020).
+  website_classes:
+    Analysis: 2381
+    Backdoor: 1226
+    Worms: 158
+  notes: >-
+    Paper (arXiv:2503.04404v3 Tables 2-3) values pinned. The measured
+    multiclass distribution sums to exactly 2,365,424 and the binary Label
+    split matches 2,237,731 benign / 127,693 attack (independently confirmed by
+    the verifier). Website values differ and are reported, not enforced.
+class_order: [Benign, Analysis, Backdoor, DoS, Exploits, Fuzzers, Generic, Reconnaissance, Shellcode, Worms]

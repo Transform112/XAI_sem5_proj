@@ -1,0 +1,51 @@
+# =============================================================================
+# Global defaults merged UNDER every stage configuration.
+#
+# Layering rule (implemented in src/utils/config.py):
+#     configs/base.yaml  ->  configs/<stage>.yaml  ->  CLI overrides
+# The resolved mapping (not the files) is hashed and stored in the run manifest,
+# so identical effective configs share one hash regardless of layering.
+#
+# Paths are NOT configured here: they live in configs/paths/<lane>.yaml and are
+# resolved by src/utils/paths.py. Nothing in this file may contain a path that
+# is specific to one machine.
+# =============================================================================
+schema_version: 1
+
+# --- Reproducibility ---------------------------------------------------------
+# Single seed used by data-stage operations (splits, sampling, audit bootstrap).
+seed: 42
+# Five seeds required by Doc 1 section 7 for every training configuration.
+seeds: [42, 43, 44, 45, 46]
+
+# --- Study defaults (Doc 1 section 7; binding, change only via decision log) --
+dataset: NF-UNSW-NB15-v3
+periods: 5
+anchors: {max_per_class: 100, max_per_period: 1000}
+explainers: [ig, gnn_explainer]
+explanation_sizes: {features: [5, 10], edges: 5}
+models: [egraphsage, gcn]
+strategies: [finetune, replay, ewc, ear_a, ear_b]
+replay: {buffer_edges: 2000, ablation: [500, 2000, 5000]}
+hop_depth: 2
+
+# --- Determinism -------------------------------------------------------------
+determinism:
+  # torch.use_deterministic_algorithms(True); warn_only keeps unsupported ops alive.
+  deterministic_algorithms: true
+  warn_only: true
+  # null = torch default; set to 1 on the legacy lane if a comparison needs it.
+  torch_num_threads: null
+  # Seeds Python/NumPy/torch; also recorded by the run manifest.
+  seed_stage: true
+
+# --- Manifest policy ---------------------------------------------------------
+manifest:
+  include_gpu: true
+  # Hash raw dataset files when a stage reports dataset identity (can take a
+  # few seconds per GB; the data audit and identity stages need it).
+  hash_dataset_files: true
+
+# --- Logging -----------------------------------------------------------------
+logging:
+  level: INFO

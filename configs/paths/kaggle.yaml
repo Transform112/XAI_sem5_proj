@@ -1,0 +1,33 @@
+# =============================================================================
+# KAGGLE CANONICAL GPU LANE (Linux, T4/P100 GPU notebooks) — D-065.
+#   Role: CANONICAL/headline lane for the matrix, anchors/explanations and
+#         GPU analyses (the RTX 5060 PC is no longer available). Results are
+#         Kaggle-lane only; the laptop GTX 1050/CPU lane is diagnostic/dev.
+#         The Kaggle image already ships a CUDA-enabled torch; PyG is installed
+#         in-kernel (2.8.1) so runs stay reproducible via lane-tagged manifests.
+#         Never mix Kaggle-lane tables with legacy diagnostic tables.
+#
+# Kaggle-specific notes:
+#   * /kaggle/input is READ-ONLY. Point XDRIFT_DATA at a writable directory
+#     before running anything that writes processed data: the launcher sets it
+#     from this file, or override with the environment variable.
+#   * The repository normally lives under /kaggle/working/<repo>.
+# =============================================================================
+lane:
+  name: kaggle
+  role: parallel-seed
+  description: Kaggle notebook (Linux, T4/P100, CUDA 11.x torch)
+  torch_pin: ""            # inherited from the Kaggle image; recorded in manifest
+  requirements: platforms/requirements/kaggle.txt
+  cuda_required: true
+  python: python
+
+defaults:
+  data_root: /kaggle/working/datasets
+  runs_root: /kaggle/working/results/text/runs
+  cache_root: /kaggle/working/cache
+  results_root: /kaggle/working/results
+
+env:
+  CUBLAS_WORKSPACE_CONFIG: ":4096:8"
+  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"

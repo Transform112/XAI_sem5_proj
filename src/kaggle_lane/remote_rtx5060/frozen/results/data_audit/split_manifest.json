@@ -1,0 +1,639 @@
+{
+  "class_weight_rule": "balanced class weights computed from each period's train mask only",
+  "dataset": "NF-UNSW-NB15-v3",
+  "fractions": {
+    "test": 0.2,
+    "train": 0.7,
+    "val": 0.1
+  },
+  "frozen": true,
+  "frozen_hash": "010a80d955802a2f62dedf472a3274e1afee17fb4b21c57541fe428b8feb47ff",
+  "generated_at_utc": "2026-11-01T15:08:20+00:00",
+  "grouped": {
+    "dataset": "NF-UNSW-NB15-v3",
+    "fractions": {
+      "test": 0.2,
+      "train": 0.7,
+      "val": 0.1
+    },
+    "frozen": true,
+    "frozen_hash": "010a80d955802a2f62dedf472a3274e1afee17fb4b21c57541fe428b8feb47ff",
+    "group_unit": "near_duplicate",
+    "mode": "grouped",
+    "periods": {
+      "0": {
+        "test": {
+          "class_counts": {
+            "0": 222769,
+            "1": 54,
+            "2": 6,
+            "3": 117,
+            "4": 1250,
+            "5": 1199,
+            "6": 504,
+            "7": 424,
+            "8": 54,
+            "9": 5
+          },
+          "first_row_id": 8,
+          "last_row_id": 1131903,
+          "n_edges": 226382,
+          "sha256": "992113f116f5bb6ac31057627fc5eda135d1131a3aa09538858936f178865447"
+        },
+        "train": {
+          "class_counts": {
+            "0": 780242,
+            "1": 179,
+            "2": 33,
+            "3": 441,
+            "4": 3788,
+            "5": 4243,
+            "6": 1675,
+            "7": 1523,
+            "8": 198,
+            "9": 14
+          },
+          "first_row_id": 0,
+          "last_row_id": 1131908,
+          "n_edges": 792336,
+          "sha256": "43fec1565a7444aa6e2a9571f4ca1c0169ce463259fdae88cb5c40b47398446c"
+        },
+        "val": {
+          "class_counts": {
+            "0": 111438,
+            "1": 34,
+            "2": 4,
+            "3": 64,
+            "4": 584,
+            "5": 604,
+            "6": 226,
+            "7": 208,
+            "8": 28,
+            "9": 1
+          },
+          "first_row_id": 3,
+          "last_row_id": 1131907,
+          "n_edges": 113191,
+          "sha256": "9f44aa7337fb1214e2a8f59242aa6f28273d522419ad3f0f2de3c2fef9ee863f"
+        }
+      },
+      "1": {
+        "test": {
+          "class_counts": {
+            "0": 55536,
+            "1": 42,
+            "2": 636,
+            "3": 222,
+            "4": 1575,
+            "5": 1324,
+            "6": 761,
+            "7": 689,
+            "8": 146,
+            "9": 4
+          },
+          "first_row_id": 1131909,
+          "last_row_id": 1436583,
+          "n_edges": 60935,
+          "sha256": "17f76975fe53d39a326b32436a3f845bc4486ca38ec42c53752675f0d8a9228b"
+        },
+        "train": {
+          "class_counts": {
+            "0": 194343,
+            "1": 173,
+            "2": 2192,
+            "3": 839,
+            "4": 5841,
+            "5": 4501,
+            "6": 2390,
+            "7": 2453,
+            "8": 512,
+            "9": 29
+          },
+          "first_row_id": 1131910,
+          "last_row_id": 1436582,
+          "n_edges": 213273,
+          "sha256": "dd89ef0186bb0eacb4a719295a50a1833c9cb3fc547f8c37678ba8081f2c2dff"
+        },
+        "val": {
+          "class_counts": {
+            "0": 27562,
+            "1": 32,
+            "2": 321,
+            "3": 120,
+            "4": 898,
+            "5": 756,
+            "6": 357,
+            "7": 337,
+            "8": 80,
+            "9": 4
+          },
+          "first_row_id": 1131925,
+          "last_row_id": 1436561,
+          "n_edges": 30467,
+          "sha256": "54078b2f81ca54caf0e70d8b8486a0de411e46442c503047635d843b84a907f5"
+        }
+      },
+      "2": {
+        "test": {
+          "class_counts": {
+            "0": 55271,
+            "1": 42,
+            "2": 19,
+            "3": 350,
+            "4": 2004,
+            "5": 1377,
+            "6": 1044,
+            "7": 708,
+            "8": 109,
+            "9": 11
+          },
+          "first_row_id": 1436602,
+          "last_row_id": 1741240,
+          "n_edges": 60935,
+          "sha256": "18ec3a1fbf87495426d822ea1388fa39963f023dbdba28d7e35c2f9d7a72d056"
+        },
+        "train": {
+          "class_counts": {
+            "0": 192973,
+            "1": 197,
+            "2": 56,
+            "3": 1222,
+            "4": 7081,
+            "5": 4855,
+            "6": 3767,
+            "7": 2691,
+            "8": 409,
+            "9": 22
+          },
+          "first_row_id": 1436584,
+          "last_row_id": 1741247,
+          "n_edges": 213273,
+          "sha256": "9c450759f1c30f65887ade0f6ce37d14989a0391081dcf0b71054487359dddb0"
+        },
+        "val": {
+          "class_counts": {
+            "0": 27554,
+            "1": 29,
+            "2": 9,
+            "3": 188,
+            "4": 983,
+            "5": 733,
+            "6": 509,
+            "7": 389,
+            "8": 72,
+            "9": 1
+          },
+          "first_row_id": 1436606,
+          "last_row_id": 1741258,
+          "n_edges": 30467,
+          "sha256": "5632a7ef39eea43d0718f15d77354f64948ddc40e8e73386b7913a5d36664e4c"
+        }
+      },
+      "3": {
+        "test": {
+          "class_counts": {
+            "0": 55621,
+            "1": 32,
+            "2": 24,
+            "3": 249,
+            "4": 1839,
+            "5": 1584,
+            "6": 801,
+            "7": 684,
+            "8": 95,
+            "9": 6
+          },
+          "first_row_id": 1741279,
+          "last_row_id": 2045917,
+          "n_edges": 60935,
+          "sha256": "4460ace62f039b4041a8e3db0edb400ad1ceac7775bff57a9bea102225990eb5"
+        },
+        "train": {
+          "class_counts": {
+            "0": 194395,
+            "1": 101,
+            "2": 94,
+            "3": 1002,
+            "4": 6631,
+            "5": 5369,
+            "6": 2793,
+            "7": 2564,
+            "8": 298,
+            "9": 26
+          },
+          "first_row_id": 1741259,
+          "last_row_id": 2045924,
+          "n_edges": 213273,
+          "sha256": "e35b90196552f88f638beefb3f82dad28140df5eeee5a4bd20cb12fe5162d9c0"
+        },
+        "val": {
+          "class_counts": {
+            "0": 27881,
+            "1": 17,
+            "2": 13,
+            "3": 147,
+            "4": 914,
+            "5": 736,
+            "6": 355,
+            "7": 352,
+            "8": 45,
+            "9": 7
+          },
+          "first_row_id": 1741278,
+          "last_row_id": 2045933,
+          "n_edges": 30467,
+          "sha256": "d2af10146a2141bc6da89ce11637bf739db68fcbf451c9a3dc3dd11f3fbee9f0"
+        }
+      },
+      "4": {
+        "test": {
+          "class_counts": {
+            "0": 55419,
+            "1": 67,
+            "2": 238,
+            "3": 184,
+            "4": 1890,
+            "5": 1337,
+            "6": 884,
+            "7": 836,
+            "8": 72,
+            "9": 8
+          },
+          "first_row_id": 2045950,
+          "last_row_id": 2350607,
+          "n_edges": 60935,
+          "sha256": "df77cb6b262192f688a976cac6d81b70622eadf61207a5fbab2d676a512a38fb"
+        },
+        "train": {
+          "class_counts": {
+            "0": 194183,
+            "1": 203,
+            "2": 886,
+            "3": 740,
+            "4": 6510,
+            "5": 4531,
+            "6": 3179,
+            "7": 2788,
+            "8": 233,
+            "9": 19
+          },
+          "first_row_id": 2045934,
+          "last_row_id": 2350608,
+          "n_edges": 213272,
+          "sha256": "0fe7ca069bbc7a19d394ad385399d70a53a68b068eb755524535e48dd4c01f0d"
+        },
+        "val": {
+          "class_counts": {
+            "0": 27743,
+            "1": 24,
+            "2": 127,
+            "3": 86,
+            "4": 956,
+            "5": 667,
+            "6": 406,
+            "7": 428,
+            "8": 30,
+            "9": 1
+          },
+          "first_row_id": 2045938,
+          "last_row_id": 2350578,
+          "n_edges": 30468,
+          "sha256": "202c3c243c830f9c58674f98ca34b4c268cdd5b1d8933a13ca0667979c72b4e1"
+        }
+      }
+    },
+    "protocol": "S-D1 leakage-safe split v1",
+    "schema_version": 1,
+    "seed": 42,
+    "stats": {
+      "feasible": true,
+      "groups_crossing_splits": 0,
+      "infeasible_reasons": []
+    }
+  },
+  "host_pair_disjoint": {
+    "dataset": "NF-UNSW-NB15-v3",
+    "feasible": true,
+    "fractions": {
+      "test": 0.2,
+      "train": 0.7,
+      "val": 0.1
+    },
+    "frozen": true,
+    "frozen_hash": "8559014ae534270e75526a6f1303af0c33defcb1c3d31c0f1ab19fe5b0f92904",
+    "group_unit": "host_pair",
+    "infeasible_reasons": [],
+    "mask_files": {
+      "1": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\host_pair_disjoint\\period_1_masks.npz",
+      "2": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\host_pair_disjoint\\period_2_masks.npz",
+      "3": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\host_pair_disjoint\\period_3_masks.npz",
+      "4": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\host_pair_disjoint\\period_4_masks.npz",
+      "5": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\host_pair_disjoint\\period_5_masks.npz"
+    },
+    "mode": "host_pair_disjoint",
+    "periods": {
+      "0": {
+        "test": {
+          "class_counts": {
+            "0": 230783,
+            "3": 60,
+            "4": 359,
+            "5": 778,
+            "6": 43,
+            "7": 117,
+            "8": 17,
+            "9": 2
+          },
+          "first_row_id": 0,
+          "last_row_id": 1131896,
+          "n_edges": 232159,
+          "sha256": "40fee1974d1079735ef37d133b75e946b657e8524b8dc7076fe802d8090afe7e"
+        },
+        "train": {
+          "class_counts": {
+            "0": 772407,
+            "1": 267,
+            "2": 41,
+            "3": 516,
+            "4": 4934,
+            "5": 5084,
+            "6": 2320,
+            "7": 1918,
+            "8": 246,
+            "9": 17
+          },
+          "first_row_id": 1,
+          "last_row_id": 1131908,
+          "n_edges": 787750,
+          "sha256": "36dec853226116e66df67527ee6d175df4ccb75f66705a48f659864a430f91a2"
+        },
+        "val": {
+          "class_counts": {
+            "0": 111259,
+            "2": 2,
+            "3": 46,
+            "4": 329,
+            "5": 184,
+            "6": 42,
+            "7": 120,
+            "8": 17,
+            "9": 1
+          },
+          "first_row_id": 13,
+          "last_row_id": 1131875,
+          "n_edges": 112000,
+          "sha256": "7fb5ea40cfa574d6359f4286ddcc99e962c4f6d88997b1d3132b14c77d97645e"
+        }
+      },
+      "1": {
+        "test": {
+          "class_counts": {
+            "0": 55325,
+            "2": 563,
+            "3": 238,
+            "4": 1690,
+            "5": 1312,
+            "6": 219,
+            "7": 649,
+            "8": 63,
+            "9": 8
+          },
+          "first_row_id": 1131910,
+          "last_row_id": 1436583,
+          "n_edges": 60067,
+          "sha256": "f10172a2d2577d638478fb58eafe613a5214da5e476ee745df7a0dbc0befb735"
+        },
+        "train": {
+          "class_counts": {
+            "0": 194203,
+            "1": 247,
+            "2": 2187,
+            "3": 859,
+            "4": 5537,
+            "5": 3787,
+            "6": 3124,
+            "7": 2397,
+            "8": 635,
+            "9": 22
+          },
+          "first_row_id": 1131909,
+          "last_row_id": 1436581,
+          "n_edges": 212998,
+          "sha256": "b7d4f9d9af8551e0b5e04682ebe3672b02a4d2742e4c38905b85511e5cd355ec"
+        },
+        "val": {
+          "class_counts": {
+            "0": 27913,
+            "2": 399,
+            "3": 84,
+            "4": 1087,
+            "5": 1482,
+            "6": 165,
+            "7": 433,
+            "8": 40,
+            "9": 7
+          },
+          "first_row_id": 1131922,
+          "last_row_id": 1436552,
+          "n_edges": 31610,
+          "sha256": "4eb92fd180d0a5e16cf7ee92c172b975c52841161c0861b8593dee4d7e003773"
+        }
+      },
+      "2": {
+        "test": {
+          "class_counts": {
+            "0": 51360,
+            "2": 27,
+            "3": 620,
+            "4": 3148,
+            "5": 2135,
+            "6": 2186,
+            "7": 1339,
+            "8": 112,
+            "9": 13
+          },
+          "first_row_id": 1436599,
+          "last_row_id": 1741245,
+          "n_edges": 60940,
+          "sha256": "7748f2d3626d3d00dfac8f3ebf4a25f17cb3c1c6a56e6c57dc801bec679f974b"
+        },
+        "train": {
+          "class_counts": {
+            "0": 194495,
+            "1": 268,
+            "2": 49,
+            "3": 1080,
+            "4": 6287,
+            "5": 4317,
+            "6": 3076,
+            "7": 2222,
+            "8": 437,
+            "9": 19
+          },
+          "first_row_id": 1436597,
+          "last_row_id": 1741246,
+          "n_edges": 212250,
+          "sha256": "090f6da4a18c4205e35e7bcf196c336d87baa397f79a7e3afbb161aa647e53d3"
+        },
+        "val": {
+          "class_counts": {
+            "0": 29943,
+            "2": 8,
+            "3": 60,
+            "4": 633,
+            "5": 513,
+            "6": 58,
+            "7": 227,
+            "8": 41,
+            "9": 2
+          },
+          "first_row_id": 1436584,
+          "last_row_id": 1741258,
+          "n_edges": 31485,
+          "sha256": "7473662d4c4e2416eb900ab0c6ef88733db0c0849b3fb8745d67a2fc8e29d380"
+        }
+      },
+      "3": {
+        "test": {
+          "class_counts": {
+            "0": 55548,
+            "1": 1,
+            "2": 43,
+            "3": 367,
+            "4": 1880,
+            "5": 1676,
+            "6": 271,
+            "7": 715,
+            "8": 132,
+            "9": 16
+          },
+          "first_row_id": 1741259,
+          "last_row_id": 2045921,
+          "n_edges": 60649,
+          "sha256": "78e4df4c1997e5ed2ddf21ffd15df6a820641eb5595b836a8d53bc448244983d"
+        },
+        "train": {
+          "class_counts": {
+            "0": 192137,
+            "1": 149,
+            "2": 82,
+            "3": 965,
+            "4": 6873,
+            "5": 5585,
+            "6": 3628,
+            "7": 2648,
+            "8": 284,
+            "9": 19
+          },
+          "first_row_id": 1741261,
+          "last_row_id": 2045933,
+          "n_edges": 212370,
+          "sha256": "7b7a3c77f8a534ef719ff2de5c2251ae3479e567ebf3f3313dd34841b2a0f9a7"
+        },
+        "val": {
+          "class_counts": {
+            "0": 30212,
+            "2": 6,
+            "3": 66,
+            "4": 631,
+            "5": 428,
+            "6": 50,
+            "7": 237,
+            "8": 22,
+            "9": 4
+          },
+          "first_row_id": 1741265,
+          "last_row_id": 2045917,
+          "n_edges": 31656,
+          "sha256": "84af1fd3980a2f55e5206a4811dd7a13eabe13be551b3471ca8337efd8ee6928"
+        }
+      },
+      "4": {
+        "test": {
+          "class_counts": {
+            "0": 51912,
+            "1": 132,
+            "2": 418,
+            "3": 205,
+            "4": 2496,
+            "5": 2321,
+            "6": 1986,
+            "7": 1335,
+            "8": 94,
+            "9": 5
+          },
+          "first_row_id": 2045957,
+          "last_row_id": 2350608,
+          "n_edges": 60904,
+          "sha256": "c959453a0f115c363de961fcfbf988ae79b5ea1ab9ee00d6a1f67d249ce869de"
+        },
+        "train": {
+          "class_counts": {
+            "0": 198444,
+            "1": 162,
+            "2": 730,
+            "3": 619,
+            "4": 5315,
+            "5": 3220,
+            "6": 2317,
+            "7": 2237,
+            "8": 201,
+            "9": 20
+          },
+          "first_row_id": 2045934,
+          "last_row_id": 2350607,
+          "n_edges": 213265,
+          "sha256": "1f60ec2301ca1b198f18aff5c07e07fdb562cea87ecde2de8af3e175d8dea19e"
+        },
+        "val": {
+          "class_counts": {
+            "0": 26989,
+            "2": 103,
+            "3": 186,
+            "4": 1545,
+            "5": 994,
+            "6": 166,
+            "7": 480,
+            "8": 40,
+            "9": 3
+          },
+          "first_row_id": 2045936,
+          "last_row_id": 2350601,
+          "n_edges": 30506,
+          "sha256": "9201a5428fe578a397930ab73a194ebc6b20c294f1ae2eb84885bc4df5be7dd7"
+        }
+      }
+    },
+    "protocol": "S-D1 leakage-safe split v1",
+    "schema_version": 1,
+    "seed": 43,
+    "stats": {
+      "feasible": true,
+      "groups_crossing_splits": 0,
+      "infeasible_reasons": []
+    }
+  },
+  "mask_files": {
+    "1": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\period_1_masks.npz",
+    "2": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\period_2_masks.npz",
+    "3": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\period_3_masks.npz",
+    "4": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\period_4_masks.npz",
+    "5": "C:\\Users\\iusearchbtw\\Desktop\\XAI_proj\\data\\splits\\NF-UNSW-NB15-v3\\session_aware_1_4\\period_5_masks.npz"
+  },
+  "mode": "grouped",
+  "period_strategy": "session_aware_1_4",
+  "preprocessing_rule": "all learned statistics fitted on period-1 train only (see preprocessor_state.json)",
+  "protocol": "S-D1 leakage-safe split v1",
+  "schema_version": 1,
+  "seed": 42,
+  "session_boundary": {
+    "rule": "largest timestamp gap >= min_session_gap_seconds defines the session boundary; period 1 = first session, periods 2..T = equal flow counts inside the second session",
+    "session_boundary_row": 1131909,
+    "session_boundary_utc": "2015-02-18T00:23:27+00:00",
+    "session_gap_seconds": 2246283.899,
+    "session_row_counts": [
+      1131909,
+      1218700
+    ]
+  }
+}

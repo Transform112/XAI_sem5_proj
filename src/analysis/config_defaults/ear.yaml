@@ -1,0 +1,92 @@
+# =============================================================================
+# PROPOSED DEFAULTS for `configs/ear.yaml` (S12 EAR-A / EAR-B mitigation)
+#
+# Status: PROPOSAL by analyst (T19), materialised into `configs/ear.yaml` by the
+# engineer. Authority: docs/05_EXPERIMENT_PROTOCOL.md §12 (RQ4 / H4), §5
+# (strategies + replay defaults), docs/source_documents/Doc 2b §S12, and docs/DECISIONS.md
+# D-019 (RQ4 is a graph/NIDS adaptation of explanation-regularised CL — RRR,
+# C³L, TriGuard, Array 2026 — with an honest novelty label; self-referential
+# target diagnostic required). Implementation: analysis.tables (H4 evaluation),
+# analysis.noise_floor (drift comparison), analysis.metrics_cl (F1/BWT).
+# =============================================================================
+schema_version: 1
+dataset: NF-UNSW-NB15-v3
+protocol_version: 1
+source: docs/05 §5 + §12; Doc 2b S12; D-019
+novelty_label: "graph/NIDS adaptation of explanation-regularised CL; not a new mitigation family"
+
+# --- Replay base (identical budget/data/seeds for every variant) -------------
+replay:
+  alpha: 1.0                          # L = CE(new) + alpha * CE(buffer) (docs/05 §5)
+  buffer_edges: 2000                  # default; ablation {500, 2000, 5000}
+  class_balanced: true
+  eviction: random_from_largest_class
+  subgraph:
+    num_hops: 2
+    fanout_per_hop: 10                # Doc 2 S4.2 (<=10 sampled neighbours/hop)
+  attribution_storage:
+    stored_with_buffer_entry: true
+    stored_attribution_hash_required: true   # provenance (Doc 2b S12 check)
+    default_source: IG
+    ablation_source: GNNExplainer     # offline storage only, never per-step
+
+# --- EAR variants (docs/05 §12; Doc 2b S12) ----------------------------------
+variants:
+  ear_a:
+    description: attribution-similarity penalty
+    loss: "L_attr = mean(1 - cos(a_t, a_stored))"
+    pred_attribution: gradient_x_input_1step_IG  # differentiable cheap surrogate; documented as approximation
+  ear_b:
+    description: top-k / rank consistency penalty
+    loss: soft_topk_overlap_or_margin_ranking
+    k: 5
+training:
+  beta_grid: [0.1, 0.5, 1.0]          # optionally 0.01 with a DECISIONS entry
+  beta_selection: "validation macro-F1 of old periods + validation drift (never test)"
+  tuning_budget: identical_across_variants
+  epochs_lr_early_stopping: identical_to_replay_baseline
+
+# --- Attribution-source ablations (docs/05 §12; C³L self-reference risk) ----
+attribution_targets:
+  default: insertion_time_checkpoint
+  ablations:
+    - frozen_early_checkpoint         # targets from one frozen early checkpoint
+    - current_model                   # upper bound on self-reference
+  source_ablation: [IG, GNNExplainer] # stored attribution source for EAR-A
+  report_anchor_fidelity_alongside_drift: true   # drift reduction that degrades fidelity = failure mode
+
+# --- H4 criterion (docs/05 §12) ---------------------------------------------
+h4:
+  rule: "lower drift than plain replay AND at most 1 macro-F1 point lost"
+  macro_f1_loss_points_max: 1.0       # i.e. delta macro-F1 >= -0.01
+  drift_direction: lower_is_better
+  ci: paired_bootstrap_95
+  report_on_failure: honest           # never silently drop a failed EAR variant
+  comparison_baseline: replay
+
+# --- Ablations (docs/05 §12; Doc 2b S12) ------------------------------------
+ablations:
+  buffer_edges: [500, 2000, 5000]
+  beta_grid: [0.1, 0.5, 1.0]
+  attribution_source: [IG, GNNExplainer]
+  with_without_consistency_loss: true
+  runtime_overhead: reported
+
+# --- Evaluation metrics (all from frozen S5/S8/S9 code paths) ---------------
+evaluation:
+  drift: primary metric + all secondary metrics (docs/05 §8)
+  macro_f1: all periods
+  forgetting: true
+  bwt: true
+  runtime_s: true
+  identical_data_budget_seeds_vs_replay: true
+
+# --- Inputs / outputs -------------------------------------------------------
+inputs:
+  anchors: results/text/anchors/period_{j}.pt
+  explanation_index: results/text/tables/explain_index.csv
+  buffer_attributions: results/text/explanations/buffer_attributions.json
+outputs:
+  comparison_csv: results/text/tables/rq4_comparison.csv
+  ablations_csv: results/text/tables/rq4_ablations.csv
+  figure: results/images/s12_ear_drift_vs_macro_f1.png

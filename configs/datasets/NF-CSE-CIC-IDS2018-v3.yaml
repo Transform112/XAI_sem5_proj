@@ -1,0 +1,73 @@
+# =============================================================================
+# NF-CSE-CIC-IDS2018-v3 - optional replication dataset (Doc 1: only after the
+# primary study is finished). Paper: 20,115,529 flows / 7 aggregated classes.
+#
+# D-031: the raw CSV `Attack` column carries 15 fine CSE-CIC-IDS2018 labels while
+# the UQ paper reports 7 aggregated classes. The mapping below is documented,
+# validated against the published aggregated counts (paper Table 2/3), and any
+# unknown label or count mismatch fails loudly - labels are never relabelled
+# silently. Published counts: Benign 17,514,626 + BruteForce 575,194
+# (FTP-BruteForce 386,720 + SSH-Bruteforce 188,474) + Bot 207,703 +
+# DoS 302,966 (4x DoS_attacks_*) + DDoS 1,324,350 (HOIC 1,032,311 + LOIC-HTTP
+# 288,589 + LOIC-UDP 3,450) + Infiltration 188,152 + Web Attacks 2,538
+# (Brute_Force_-Web 1,618 + Brute_Force_-XSS 480 + SQL_Injection 440).
+# =============================================================================
+name: NF-CSE-CIC-IDS2018-v3
+schema: nf_v3
+role: optional-replication
+source:
+  provider: University of Queensland NIDS NetFlow-v3 family (Sarhan et al.)
+  mirror: kaggle://seyhed/nf-cicids2018-v3
+  url: https://www.kaggle.com/api/v1/datasets/download/seyhed/nf-cicids2018-v3
+  licence: research use; cite the UQ NetFlow-v3 dataset paper
+  authoritative_source: >-
+    Luay et al., IEEE Access 2026 (DOI 10.1109/ACCESS.2026.3688204;
+    arXiv:2503.04404v3) per D-013; taxonomy mapping per D-031.
+published:
+  flows: 20115529
+  classes:
+    Benign: 17514626
+    Bot: 207703
+    BruteForce: 575194
+    DDoS: 1324350
+    DoS: 302966
+    Infiltration: 188152
+    Web Attacks: 2538
+  classes_count: 7
+  attack_total: 2600903
+  binary_label: {0: 17514626, 1: 2600903}
+  notes: >-
+    Paper totals (arXiv:2503.04404v3) with the documented D-031 15->7
+    aggregation; the class table sums exactly to 20,115,529.
+class_order: [Benign, Bot, BruteForce, DDoS, DoS, Infiltration, Web Attacks]
+
+# D-031: documented fine -> coarse label taxonomy (validated on the raw rows).
+label_taxonomy:
+  name: cic_ids2018_15_to_7
+  source: verifier reference verification/reference/published_counts.json (D-031)
+  fine_class_count: 15
+  strict_aggregate_check: true
+  aggregate_to:
+    Benign: Benign
+    Bot: Bot
+    DDOS_attack-HOIC: DDoS
+    DDoS_attacks-LOIC-HTTP: DDoS
+    DDOS_attack-LOIC-UDP: DDoS
+    DoS_attacks-GoldenEye: DoS
+    DoS_attacks-Hulk: DoS
+    DoS_attacks-SlowHTTPTest: DoS
+    DoS_attacks-Slowloris: DoS
+    FTP-BruteForce: BruteForce
+    SSH-Bruteforce: BruteForce
+    Infilteration: Infiltration
+    Brute_Force_-Web: Web Attacks
+    Brute_Force_-XSS: Web Attacks
+    SQL_Injection: Web Attacks
+  published_aggregated_counts:
+    Benign: 17514626
+    Bot: 207703
+    BruteForce: 575194
+    DDoS: 1324350
+    DoS: 302966
+    Infiltration: 188152
+    Web Attacks: 2538

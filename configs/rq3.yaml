@@ -1,0 +1,79 @@
+# =============================================================================
+# PROPOSED DEFAULTS for `configs/rq3.yaml` (S11 drift → later per-class forgetting)
+#
+# Status: PROPOSAL by analyst (T19), materialised into `configs/rq3.yaml` by the
+# engineer. Authority: docs/05_EXPERIMENT_PROTOCOL.md §11 (RQ3 analysis plan) and
+# §13 (statistics), documents/Doc 2b §S11, docs/DECISIONS.md D-019 (G3 action:
+# competing baselines are mandatory) and D-043 conventions A8–A10.
+# Implementation: analysis.rq3, analysis.metrics_cl (labels), analysis.stats.
+# RQ3 is EXPLORATORY (T = 5 periods); no causal claim.
+# =============================================================================
+schema_version: 1
+dataset: NF-UNSW-NB15-v3
+protocol_version: 1
+source: docs/05 §11 + §13; Doc 2b S11; D-019; D-043 A8–A10
+exploratory: true
+caveat: "T=5, association only, no causal claim"
+
+# --- Pre-registered later-forgetting label (docs/05 §11; A10) ----------------
+labels:
+  delta: 0.05                         # default δ = 0.05, pre-registered
+  horizon: next_or_final              # A10: max drop at next update or final checkpoint
+  robustness_horizon: any_later       # declared variant only, reported alongside
+  formula: "F_{c,j}(i) = max_{k<=i} R[k,j,c] - R[i,j,c]; label = 1 if drop >= delta"
+  no_post_hoc_variants: true          # frozen before looking at outcomes
+  per_class_f1_source: results/text/tables/cl_per_class_f1.json
+
+# --- Features at checkpoint i for class c (docs/05 §11; A8) ------------------
+features:
+  drift: [mean_excess_drift, p90_excess_drift]     # excess over the S9 noise floor
+  structural: [mean_neighbourhood_change]
+  controls: [anchor_count, class_f1_at_i]
+  forbidden: [future_f1, future_checkpoint, drop]  # no future-F1 leakage (T19 validator checks this)
+
+# --- Competing baselines (docs/05 §11; D-019 mandatory) ----------------------
+competing_baselines:
+  columns: [confidence_mean, margin_mean, retained_fraction, f1]
+  reference_model: majority_reference              # constant predictor, AUC = 0.5
+  models:
+    baselines_only: [confidence_mean, margin_mean, retained_fraction, f1]
+    drift_only: [mean_excess_drift, p90_excess_drift]
+    drift_plus_baselines: all
+  decision_metric: delta_auc                       # drift_plus_baselines minus baselines_only
+
+# --- Model + CV (docs/05 §11 + §13; A9) -------------------------------------
+model:
+  type: logistic_regression
+  penalty: l2
+  C: 1.0
+  standardize: true                  # coefficients reported in standardized units
+  class_weight: null
+  solver: lbfgs
+  max_iter: 1000
+  random_state: 42
+cross_validation:
+  scheme: leave_one_period_out
+  group_primary: checkpoint_t        # A9: the checkpoint index that drives the "later" horizon
+  group_robustness: eval_period      # declared variant
+  min_groups: 2
+statistics:
+  n_resamples: 1000                  # docs/05 §13 (AUC + ΔAUC CIs)
+  n_bootstrap_coef: 200              # supplementary coefficient CIs (recorded in the table)
+  alpha: 0.05
+  seed: 42
+  effect_sizes: [cohens_d, rank_biserial]
+  h3_supported_rule: delta_auc_ci_lower_bound > 0
+  report_if_unsupported: "H3 not supported behind standard baselines (D-019)"
+
+# --- Inputs / outputs (artifact contract frozen by D-043) --------------------
+inputs:
+  drift_anchor_level: results/text/tables/rq1_anchor_level.csv
+  retention: results/text/tables/anchor_retention.csv
+  neighbourhood: results/text/tables/rq2_anchor_level.csv
+  per_class_f1: results/text/tables/cl_per_class_f1.json
+outputs:
+  features_csv: results/text/tables/rq3_features.csv
+  forgetting_labels_csv: results/text/tables/rq3_forgetting_labels.csv
+  auc_csv: results/text/tables/rq3_auc.csv
+  coefficients_csv: results/text/tables/rq3_coefficients.csv   # extra registered artifact (D-043)
+  figures_prefix: results/images/s11_

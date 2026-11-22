@@ -1,0 +1,28 @@
+# Path configuration contract for every lane.
+#
+# Values of the form "env:NAME" are resolved from environment variables; if the
+# variable is unset the resolver falls back to the platform default listed in
+# `defaults`. Source code must never hard-code absolute paths: every script
+# receives --config plus optional env overrides.
+#
+# Lane files (paths.rtx5060.yaml, paths.kaggle.yaml) only override the values
+# that genuinely differ; the loader merges this file under the lane file.
+
+project_root: auto                 # auto = directory containing src/ and platforms/
+data_root: env:XDRIFT_DATA         # raw/processed/splits live here
+runs_root: env:XDRIFT_RUNS         # checkpoints, run manifests, logs
+cache_root: env:XDRIFT_CACHE       # explanation caches, intermediate tensors
+results_root: env:XDRIFT_RESULTS   # small trackable tables/figures
+configs_root: configs
+audit_root: env:XDRIFT_RESULTS/text/data_audit
+explanations_root: env:XDRIFT_RESULTS/text/explanations
+
+defaults:
+  data_root: datasets
+  runs_root: results/text/runs
+  cache_root: cache
+  results_root: results
+
+# Expected raw layout after src/scripts/download_data.ps1
+raw:
+  NF-UNSW-NB15-v3: datasets/raw/NF-UNSW-NB15-v3

@@ -1,0 +1,22 @@
+# =============================================================================
+# LEGACY DEV LANE - the current development PC.
+#   GPU : NVIDIA GTX 1050, 3 GB, driver 457.49 (CUDA 11.1) -> torch 2.4.1+cu118
+#   Role: dev/CPU lane; smoke tests, small samples, data audit. Never the
+#         canonical training lane.
+#   CUDA is optional on this lane: the driver may reject the cu118 runtime and
+#   the stage must still run on CPU. Record which happened in the manifest.
+# =============================================================================
+lane:
+  name: legacy
+  role: dev
+  description: Windows dev PC (GTX 1050 3 GB, CUDA 11.1 driver)
+  torch_pin: "2.4.1+cu118"
+  requirements: platforms/requirements/gpu-legacy-cu118.txt
+  cuda_required: false
+  python: python
+
+env:
+  # Required for bitwise-deterministic CUDA matmuls when a CUDA context exists.
+  CUBLAS_WORKSPACE_CONFIG: ":4096:8"
+  # 3 GB VRAM: allow the allocator to grow segments instead of fragmenting.
+  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"

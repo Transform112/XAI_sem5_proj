@@ -1,0 +1,41 @@
+﻿# =============================================================================
+# S5 evaluation + S6 anchor configuration (frozen C1 state; D-033 metrics).
+# =============================================================================
+schema_version: 1
+dataset: NF-UNSW-NB15-v3
+
+s5:
+  test_split: test
+  # D-033 dual macro-F1: the global 10-class macro-F1 (absent classes score 0)
+  # AND the supported/active-set macro-F1 (D-033/D-047: 6 attack classes + Benign = 7).
+  # The supported set is fixed here so it
+  # cannot drift between evaluation runs.
+  dual_macro_f1:
+    enabled: true
+    supported_set: [Benign, DoS, Exploits, Fuzzers, Generic, Reconnaissance, Shellcode]
+    report_class_counts: true
+  outputs:
+    metrics_csv: cl_metrics.csv
+    per_class_json: cl_per_class_f1.json
+    matrix_json: cl_matrix.json
+
+s6:
+  test_split: test
+  anchors:
+    confidence_min: 0.9
+    max_per_class: 100
+    max_per_period: 1000
+    # D-033 rare-stratum rule: classes with fewer than this many eligible
+    # anchors are merged into a single 'rare' stratum instead of being dropped.
+    rare_min_eligible: 10
+    rare_stratum: rare
+    sampling_seed: 42
+    num_hops: 2
+    fanout: 10
+    # T31: cap the stored/explained 2-hop context on dense host graphs (target edge
+    # always kept). Toy/sparse graphs are unaffected; anchor counts are unchanged.
+    max_subgraph_edges: 2000
+  retention:
+    # anchor is retained at M_t when M_t still predicts the anchor's original
+    # class correctly (softmax confidence recorded, threshold not re-applied)
+    min_confidence_for_retention: 0.0

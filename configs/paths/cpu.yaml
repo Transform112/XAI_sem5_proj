@@ -1,0 +1,16 @@
+# =============================================================================
+# CPU-ONLY LANE - analysis, docs, data audit and unit tests where no usable GPU
+# exists. torch CPU wheels (platforms/requirements/cpu.txt) are sufficient for
+# the data stages and for the toy-model tests; it is not a training lane.
+# =============================================================================
+lane:
+  name: cpu
+  role: cpu-analysis
+  description: CPU-only environment (CI, laptop, data audit)
+  torch_pin: "2.4.1"       # CPU wheel from PyPI
+  requirements: platforms/requirements/cpu.txt
+  cuda_required: false
+  python: python
+
+env:
+  CUBLAS_WORKSPACE_CONFIG: ":4096:8"

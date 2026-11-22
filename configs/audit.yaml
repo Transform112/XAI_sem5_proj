@@ -1,0 +1,172 @@
+# =============================================================================
+# DATA STAGE CONFIGURATION - pre-registered thresholds and protocol settings.
+#
+# IMPORTANT: the `thresholds` block was written BEFORE the first audit run
+# (S-D1 stage) so that pass/fail criteria are fixed in advance. Any later change
+# must be recorded in the decision log (docs/DECISIONS.md) with the previous and
+# new value and the reason, and the verifier will compare against git history.
+#
+# Every threshold is read through src/data/audit.py from this file; no numeric
+# threshold is hard-coded in src/. Report-only metrics have no threshold and are
+# documented in the scorecard as diagnostic evidence.
+# =============================================================================
+schema_version: 1
+
+# Primary dataset for the S-D1 stage. The identity/verification stage accepts any
+# dataset listed in `datasets` (all four NF-v3 datasets are audited).
+dataset: NF-UNSW-NB15-v3
+datasets:
+  - NF-UNSW-NB15-v3
+  - NF-ToN-IoT-v3
+  - NF-BoT-IoT-v3
+  - NF-CSE-CIC-IDS2018-v3
+
+# --- Identity / provenance verification (T3; scripts/verify_datasets.py) -----
+identity:
+  chunksize: 250000              # rows per pandas chunk for the streaming pass
+  encoding: utf-8
+  encoding_errors: replace       # count/report decode problems instead of crashing
+  large_dataset_rows: 5000000    # above this, expensive checks use a sample
+  large_dataset_sample_rows: 1000000
+  hash_large_files: true         # sha256 of extracted CSVs (provenance)
+  hash_archives: true            # recompute zip sha256 and compare to provenance.json
+  published_tolerance: 0         # exact match required against published counts
+  duplicate_method: full_row_hash
+  host_cardinality: exact
+  timestamp_parse_fraction_min: 1.0
+  check_binary_label_consistency: true
+  progress_every_chunks: 10
+
+# --- Temporal stream (Doc 2 S2) ---------------------------------------------
+periods:
+  count: 5
+  # D-026: C1 session-aware stream. Period 1 = first capture session; periods
+  # 2..5 = four equal-count periods inside the second capture session. The
+  # boundary is detected deterministically from raw timestamps (largest gap >=
+  # session_min_gap_seconds). Stream A (plain equal_counts) is kept only as an
+  # ablation/fallback.
+  strategy: session_aware_1_4
+  session_min_gap_seconds: 3600
+  sort_by: timestamp_start
+  require_time_disjoint: true    # later periods must start after earlier ones end
+  min_flows_per_period: 1000
+
+# --- Cleaning / near-duplicate policy ---------------------------------------
+dedupe:
+  exact: true                    # drop exact duplicate raw rows
+  keep: first                    # first occurrence in chronological sort order
+  # D-032/D-034: the pre-registered label-conflict metric uses the config-defined
+  # canonical key (host ids + ports + protocol + 1 s time bucket). `report_only`
+  # keeps every row unless the metric exceeds its threshold; the `drop_groups`
+  # cleaning branch stays available for datasets where the threshold is exceeded.
+  # D-034: UNSW measured 11 conflicting groups / 33 edges (5.8e-6) -> PASS, no rows
+  # are dropped. A finer-time-bucket conflict rate is reported as a diagnostic.
+  label_conflict_policy: report_only
+
+near_duplicate:
+  # Canonical key = src/dst host + src/dst port + protocol + start time binned to
+  # time_bucket_ms. Flows sharing a key are treated as one leakage group and
+  # never split across train/val/test within a period.
+  time_bucket_ms: 1000
+  keys: [host_src, host_dst, port_src, port_dst, protocol]
+
+sentinels:
+  # A negative value in a column declared non_negative in the dataset spec is a
+  # NetFlow "not available" sentinel -> NaN; +/-inf -> NaN.
+  negative_to_nan: true
+  inf_to_nan: true
+  explicit_values: []            # extra sentinel values, per-dataset yaml may add
+
+# --- Leakage-safe split protocol (Doc 2 S2 + T4) ----------------------------
+splits:
+  fractions: {train: 0.70, val: 0.10, test: 0.20}
+  seed: 42
+  group_by: near_duplicate       # shuffle groups, not edges
+  # Robustness variant: host-pair-disjoint split. If the number of host pairs is
+  # too small to give each split its 5% minimum share, the variant is reported
+  # as "not feasible" with the exact numbers instead of silently degrading.
+  host_pair_disjoint:
+    enabled: true
+    min_groups_per_split: 10
+    min_share: 0.05
+  frozen: true                   # write mask hashes; never resplit after freeze
+
+# --- Preprocessing (Doc 2 S1 + T4) ------------------------------------------
+preprocess:
+  categorical_encoding: label    # label | onehot
+  unknown_category_index: 0      # reserved; vocab fitted on period-1 train only
+  impute_strategy: median        # fitted on period-1 train only
+  missing_indicator_threshold: 0.001
+  log1p_clip_min: 0.0
+  standardize: true
+  clip_std: 10.0                 # z-score clip after standardisation (report how many)
+  fit_period: 1
+  fit_split: train
+  class_weights: balanced        # from train mask of each period only
+
+# --- Structure-existence checks ---------------------------------------------
+structure:
+  evaluate_per_period: true      # D-023: structure checks on the per-period graph (model input)
+  union_diagnostics: true        # report union-across-time stats alongside (diagnostic only)
+  small_host_flag_threshold: 100 # D-023: below this host count, giant-component result is a FLAG not FAIL
+  giant_component_undirected: true
+  degree_mode: undirected_pair   # counts each flow as degree 1 on both hosts
+  repeated_host_pairs: true
+  self_loops: true               # src == dst (malformed/loopback flows)
+
+# --- Quality audit ----------------------------------------------------------
+quality:
+  ks_sample_rows: 50000
+  ks_minimum_rows: 1000
+  mutual_information: true
+  mi_sample_rows: 20000
+  single_feature_auc: true
+  auc_sample_rows: 50000
+  adversarial_sample_rows: 50000
+  adversarial_model: hist_gradient_boosting
+  adversarial_max_iter: 80
+  adversarial_cv: 3
+  constant_feature_unique_max: 1
+  label_conflict_key: near_duplicate
+
+# --- Graph-lift pilot (T12; harness built in T4, run after audit) -----------
+graph_lift:
+  enabled: auto                 # auto = run only when torch is importable and --with-pilot
+  period: 1
+  sample_edges: 20000
+  sample_frac: 0.05
+  hidden_dim: 64
+  epochs: 15
+  batch_size: 1024
+  lr: 0.001
+  seeds: [42, 43, 44]           # D-024: 3 seeds; decisive gate test, verdict on the mean
+  prototype_randomised_structure: true
+
+# =============================================================================
+# PRE-REGISTERED PASS/FAIL THRESHOLDS (do not edit without a decision-log entry)
+# =============================================================================
+thresholds:
+  # Data quality
+  nan_inf_fraction_max: 0.0            # after cleaning policy: no NaN/inf may remain
+  near_duplicate_cross_split_max: 0.0  # no leakage group may cross splits
+  duplicate_fraction_max: 0.001        # informational guard against a dupe bug
+  label_conflict_fraction_max: 0.001   # same near-dup group with conflicting labels
+  constant_feature_count_max: 0
+
+  # Split integrity / drift
+  adversarial_auc_within_period_max: 0.65   # split must not be predictable
+  # NOTE: between-period adversarial AUC is reported, not thresholded: real
+  # temporal drift is expected and is the phenomenon under study.
+
+  # Graph structure
+  median_host_degree_min: 2.0
+  giant_component_fraction_min: 0.90   # hard when host_count >= small_host_flag_threshold; else FLAG (D-023)
+  host_recurrence_min: 0.30            # share of period-t hosts already seen in period t-1
+  repeated_host_pair_fraction_min: 0.05
+  max_self_loop_fraction_max: 0.05     # informational: self-loops are kept as normal edges
+
+  # Graph lift (T12 sets the final verdict; thresholds pre-registered here for T4)
+  # D-024: decisive structure-informativeness test. Verdict on the mean over seeds;
+  # both deltas must hold with a bootstrap 95% CI lower bound > 0.
+  graph_lift_macro_f1_min: 1.0         # E-GraphSAGE macro-F1 minus MLP macro-F1, points
+  graph_lift_vs_randomised_min: 1.0    # E-GraphSAGE macro-F1 minus structure-randomised control, points

@@ -1,0 +1,70 @@
+# =============================================================================
+# NF-CSE-CIC-IDS2018-v3-sample - deterministic 20% stratified sample of the
+# optional replication dataset. Engineering comparison only; not the paper protocol.
+#
+# D-031: the raw CSV `Attack` column carries 15 fine CSE-CIC-IDS2018 labels while
+# the UQ paper reports 7 aggregated classes. The mapping below is documented,
+# validated against the sample aggregated counts, and any unknown label or
+# count mismatch fails loudly - labels are never relabelled silently. Sample
+# counts: Benign 3,502,924 + Bot 41,540 + BruteForce 115,039 + DDoS 264,870 +
+# DoS 60,593 + Infiltration 37,631 + Web Attacks 508.
+# =============================================================================
+name: NF-CSE-CIC-IDS2018-v3-sample
+schema: nf_v3
+role: optional-replication-sample
+source:
+  provider: University of Queensland NIDS NetFlow-v3 family (Sarhan et al.)
+  mirror: kaggle://seyhed/nf-cicids2018-v3
+  url: https://www.kaggle.com/api/v1/datasets/download/seyhed/nf-cicids2018-v3
+  licence: research use; cite the UQ NetFlow-v3 dataset paper
+  authoritative_source: >-
+    Luay et al., IEEE Access 2026 (DOI 10.1109/ACCESS.2026.3688204;
+    arXiv:2503.04404v3) per D-013; taxonomy mapping per D-031.
+published:
+  flows: 4023105
+  classes:
+    Benign: 3502924
+    Bot: 41540
+    BruteForce: 115039
+    DDoS: 264870
+    DoS: 60593
+    Infiltration: 37631
+    Web Attacks: 508
+  classes_count: 7
+  attack_total: 520181
+  binary_label: {0: 3502924, 1: 520181}
+  notes: >-
+    Paper totals (arXiv:2503.04404v3) with the documented D-031 15->7
+    aggregation; the class table sums exactly to 20,115,529.
+class_order: [Benign, Bot, BruteForce, DDoS, DoS, Infiltration, Web Attacks]
+
+# D-031: documented fine -> coarse label taxonomy (validated on the raw rows).
+label_taxonomy:
+  name: cic_ids2018_15_to_7
+  source: verifier reference verification/reference/published_counts.json (D-031)
+  fine_class_count: 15
+  strict_aggregate_check: true
+  aggregate_to:
+    Benign: Benign
+    Bot: Bot
+    DDOS_attack-HOIC: DDoS
+    DDoS_attacks-LOIC-HTTP: DDoS
+    DDOS_attack-LOIC-UDP: DDoS
+    DoS_attacks-GoldenEye: DoS
+    DoS_attacks-Hulk: DoS
+    DoS_attacks-SlowHTTPTest: DoS
+    DoS_attacks-Slowloris: DoS
+    FTP-BruteForce: BruteForce
+    SSH-Bruteforce: BruteForce
+    Infilteration: Infiltration
+    Brute_Force_-Web: Web Attacks
+    Brute_Force_-XSS: Web Attacks
+    SQL_Injection: Web Attacks
+  published_aggregated_counts:
+    Benign: 3502924
+    Bot: 41540
+    BruteForce: 115039
+    DDoS: 264870
+    DoS: 60593
+    Infiltration: 37631
+    Web Attacks: 508

@@ -1,0 +1,69 @@
+# =============================================================================
+# S1 graph construction + S3 model/training configuration.
+#
+# Settings come from Doc 2 S3 (2 layers, hidden 128, Adam lr 1e-3, 1024-target-edge
+# loss mini-batches, class-weighted CE, max 30 epochs, early stopping on validation
+# macro-F1 patience 5).
+#
+# Protocol mode decision D-059: canonical batching = `graph_batch`, which implements
+# the frozen baseline's own transductive full-graph propagation mini-batch semantics
+# (774 updates/epoch; exact frozen smoke reproduction 0.493075/0.406881) with the
+# T27 exact static-aggregation caches. The T24 `sampled` neighbor-context mode is
+# retained as a robustness/alternative path and must be reported separately if used;
+# `full_batch` is diagnostic only (one optimizer step/epoch is not the protocol).
+# Graph artefacts use the frozen C1 state (periods/splits/preprocessor); never re-fit
+# or re-split here.
+# =============================================================================
+schema_version: 1
+dataset: NF-UNSW-NB15-v3
+
+# --- S1 graph artefacts ------------------------------------------------------
+graph:
+  node_feature_dim: 8            # constant ones vector (E-GraphSAGE convention)
+  # preprocessing state is reused from results/text/data_audit/preprocessor_state.json
+  # (period-1 train only, D-042 frozen); never re-fitted here.
+  preprocessor_state: preprocessor_state.json
+  overwrite: false               # refuse to overwrite existing .pt files unless true
+
+# --- S3 model + training -----------------------------------------------------
+model:
+  name: egraphsage               # egraphsage | gcn (baseline)
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.0
+
+train:
+  lr: 0.001
+  batch_size: 1024               # target edges per optimisation step (loss batch; graph_batch canonical)
+  batching: graph_batch          # D-059 canonical (legacy transductive semantics); sampled selectable
+  max_edges_per_step: 60000      # bounded per-step sampled-subgraph edges (targets always kept)
+  optimized_dispatch: true       # T27 static device cache + zero-relabel global-id batches
+  sampler_fast_path: true        # T27 vectorised dense-host sampler (validated; reference path via false)
+  chunk_edges: 262144            # edge-head chunk size for the full_batch diagnostic only
+  neighbor_fanout: [10, 10]      # 2-hop node fanout per hop (frozen protocol max 10)
+  max_epochs: 30
+  patience: 5                    # early stop on validation macro-F1
+  class_weights: balanced        # computed from the period train mask only
+  max_edges_smoke: 100000        # legacy-lane smoke subgraph cap
+  eval_metric: macro_f1
+  seed: 42
+
+strategies:
+  ft: {}
+  replay:
+    buffer_edges: 2000
+    alpha: 1.0
+    fanout: [10, 10]
+    representation: edge         # D-072 full-graph-consistent; subgraph = diagnostic only
+  ewc:
+    fisher_edges: 2000
+    lambda_grid: [100.0, 1000.0, 10000.0]   # selected on old-period validation macro-F1
+  # T57 bounded EAR-A attempt: pre-registered beta, capped attribution storage.
+  default_beta: 0.5
+  max_attributions_per_period: 64
+  max_anchors_per_step: 2
+  attribution_source: ig
+
+determinism:
+  deterministic_algorithms: true
+  warn_only: true

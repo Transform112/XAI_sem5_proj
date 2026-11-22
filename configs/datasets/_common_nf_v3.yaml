@@ -1,0 +1,257 @@
+# =============================================================================
+# Shared column/feature specification for the UQ NetFlow-v3 dataset family.
+# Loaded first, then overlaid by configs/datasets/<dataset>.yaml.
+#
+# Verified against the actual Kaggle mirrors on 2026-11-01: all four NF-v3
+# datasets have exactly 55 columns with this schema. `Label` is the binary
+# benign/attack flag and `Attack` is the multiclass target (10 classes for
+# NF-UNSW-NB15-v3). The binary column is derived from the multiclass one, so it
+# is leakage for the multiclass task and is dropped, not used as a feature.
+#
+# Role keys consumed by src/data/registry.py + src/data/features.py. Nothing in
+# this file is machine specific; absolute paths never appear here.
+# =============================================================================
+schema: nf_v3
+schema_version: 1
+provenance:
+  origin: University of Queensland NIDS NetFlow-v3 dataset family (Sarhan et al.)
+  origin_note: >-
+    Public Kaggle mirrors of the UQ RDM datasets; the UQ originals require
+    authentication and are not redistributed by this repository.
+  format: CSV with header row, comma separated, one file per dataset
+  # Verified schema reference for the feature manifest (scout literature pass,
+  # T1): the v3 family has 53 features = 43 NetFlow-v2 features + 10 temporal
+  # columns, plus the two label columns (Label binary, Attack multiclass).
+  schema_reference:
+    citation: >-
+      Luay et al., "Temporal Analysis of NetFlow Datasets for Network Intrusion
+      Detection Systems", IEEE Access, 2026.
+    doi: 10.1109/ACCESS.2026.3688204
+    arxiv: "2503.04404"
+    verified_by: scout (T1), 2026-11-01
+    claim: 43 NetFlow-v2 features + 10 temporal columns = 53 feature columns
+
+raw:
+  csv_glob: "**/*.csv"
+  expected_csv_count: 1
+
+columns:
+  timestamp_start: FLOW_START_MILLISECONDS
+  timestamp_end: FLOW_END_MILLISECONDS
+  host_src: IPV4_SRC_ADDR
+  host_dst: IPV4_DST_ADDR
+  port_src: L4_SRC_PORT
+  port_dst: L4_DST_PORT
+  label_binary: Label
+  label_multiclass: Attack
+  protocol: PROTOCOL
+
+  # The 53 published feature columns, split by provenance (see schema_reference):
+  #   nf_v2_features = 43 original NetFlow-v2 features
+  #   temporal_raw   = 2 raw epoch-millisecond timestamps (v3 temporal group)
+  #   temporal_iat   = 8 inter-arrival-time statistics (v3 temporal group)
+  nf_v2_features:
+    - IPV4_SRC_ADDR
+    - L4_SRC_PORT
+    - IPV4_DST_ADDR
+    - L4_DST_PORT
+    - PROTOCOL
+    - L7_PROTO
+    - IN_BYTES
+    - IN_PKTS
+    - OUT_BYTES
+    - OUT_PKTS
+    - TCP_FLAGS
+    - CLIENT_TCP_FLAGS
+    - SERVER_TCP_FLAGS
+    - FLOW_DURATION_MILLISECONDS
+    - DURATION_IN
+    - DURATION_OUT
+    - MIN_TTL
+    - MAX_TTL
+    - LONGEST_FLOW_PKT
+    - SHORTEST_FLOW_PKT
+    - MIN_IP_PKT_LEN
+    - MAX_IP_PKT_LEN
+    - SRC_TO_DST_SECOND_BYTES
+    - DST_TO_SRC_SECOND_BYTES
+    - RETRANSMITTED_IN_BYTES
+    - RETRANSMITTED_IN_PKTS
+    - RETRANSMITTED_OUT_BYTES
+    - RETRANSMITTED_OUT_PKTS
+    - SRC_TO_DST_AVG_THROUGHPUT
+    - DST_TO_SRC_AVG_THROUGHPUT
+    - NUM_PKTS_UP_TO_128_BYTES
+    - NUM_PKTS_128_TO_256_BYTES
+    - NUM_PKTS_256_TO_512_BYTES
+    - NUM_PKTS_512_TO_1024_BYTES
+    - NUM_PKTS_1024_TO_1514_BYTES
+    - TCP_WIN_MAX_IN
+    - TCP_WIN_MAX_OUT
+    - ICMP_TYPE
+    - ICMP_IPV4_TYPE
+    - DNS_QUERY_ID
+    - DNS_QUERY_TYPE
+    - DNS_TTL_ANSWER
+    - FTP_COMMAND_RET_CODE
+
+  # Raw timestamps: dropped as features, kept as a sidecar for period
+  # boundaries and temporal grouping (decided in T4; documented in the
+  # feature manifest).
+  temporal_raw:
+    - FLOW_START_MILLISECONDS
+    - FLOW_END_MILLISECONDS
+
+  # Inter-arrival-time statistics: temporal columns that are legitimate
+  # features (they are flow statistics, not clock values).
+  temporal_iat:
+    - SRC_TO_DST_IAT_MIN
+    - SRC_TO_DST_IAT_MAX
+    - SRC_TO_DST_IAT_AVG
+    - SRC_TO_DST_IAT_STDDEV
+    - DST_TO_SRC_IAT_MIN
+    - DST_TO_SRC_IAT_MAX
+    - DST_TO_SRC_IAT_AVG
+    - DST_TO_SRC_IAT_STDDEV
+
+  # Leakage / identity columns removed from the feature matrix (Doc 2 S1).
+  # IPs and the source port identify hosts and ephemeral connections; the raw
+  # timestamps would let the model memorise the temporal split; Label is
+  # derived from Attack; Attack is the target itself.
+  drop_features:
+    - FLOW_START_MILLISECONDS
+    - FLOW_END_MILLISECONDS
+    - IPV4_SRC_ADDR
+    - IPV4_DST_ADDR
+    - L4_SRC_PORT
+    - Label
+    - Attack
+
+  # Machine-readable reasons for every dropped column (used verbatim by the
+  # T4 feature manifest; no reason is invented at runtime).
+  drop_reasons:
+    FLOW_START_MILLISECONDS: >-
+      leakage/sidecar: raw start timestamp defines the chronological periods; kept
+      only as a sidecar for period boundaries and temporal grouping, never as a feature
+    FLOW_END_MILLISECONDS: >-
+      leakage/sidecar: raw end timestamp leaks the future boundary and is redundant
+      with FLOW_START_MILLISECONDS; kept as a sidecar only
+    IPV4_SRC_ADDR: >-
+      identity: host identifier; mapped to global node ids for graph structure only,
+      never a numeric feature
+    IPV4_DST_ADDR: >-
+      identity: host identifier; mapped to global node ids for graph structure only,
+      never a numeric feature
+    L4_SRC_PORT: >-
+      leakage: ephemeral source port identifies individual connections and is
+      explicitly excluded by Doc 2 S1
+    Label: >-
+      target-derived: binary benign/attack flag is a deterministic function of the
+      multiclass target Attack; using it would leak the label
+    Attack: >-
+      target: multiclass target column itself
+
+  # Label-encoded with a vocabulary fitted on period-1 train only; unseen
+  # categories map to index 0 (reserved "unknown").
+  categorical:
+    - PROTOCOL
+    - L7_PROTO
+    - ICMP_TYPE
+    - ICMP_IPV4_TYPE
+    - DNS_QUERY_TYPE
+
+  # Numeric, non-negative, heavy-tailed: log1p then standardise.
+  log1p:
+    - IN_BYTES
+    - IN_PKTS
+    - OUT_BYTES
+    - OUT_PKTS
+    - FLOW_DURATION_MILLISECONDS
+    - DURATION_IN
+    - DURATION_OUT
+    - LONGEST_FLOW_PKT
+    - SHORTEST_FLOW_PKT
+    - MIN_IP_PKT_LEN
+    - MAX_IP_PKT_LEN
+    - SRC_TO_DST_SECOND_BYTES
+    - DST_TO_SRC_SECOND_BYTES
+    - RETRANSMITTED_IN_BYTES
+    - RETRANSMITTED_IN_PKTS
+    - RETRANSMITTED_OUT_BYTES
+    - RETRANSMITTED_OUT_PKTS
+    - SRC_TO_DST_AVG_THROUGHPUT
+    - DST_TO_SRC_AVG_THROUGHPUT
+    - NUM_PKTS_UP_TO_128_BYTES
+    - NUM_PKTS_128_TO_256_BYTES
+    - NUM_PKTS_256_TO_512_BYTES
+    - NUM_PKTS_512_TO_1024_BYTES
+    - NUM_PKTS_1024_TO_1514_BYTES
+    - TCP_WIN_MAX_IN
+    - TCP_WIN_MAX_OUT
+    - SRC_TO_DST_IAT_MIN
+    - SRC_TO_DST_IAT_MAX
+    - SRC_TO_DST_IAT_AVG
+    - SRC_TO_DST_IAT_STDDEV
+    - DST_TO_SRC_IAT_MIN
+    - DST_TO_SRC_IAT_MAX
+    - DST_TO_SRC_IAT_AVG
+    - DST_TO_SRC_IAT_STDDEV
+
+  # Numeric, standardised only (bounded codes/counts without heavy tails).
+  numeric:
+    - L4_DST_PORT
+    - MIN_TTL
+    - MAX_TTL
+    - TCP_FLAGS
+    - CLIENT_TCP_FLAGS
+    - SERVER_TCP_FLAGS
+    - DNS_QUERY_ID
+    - DNS_TTL_ANSWER
+    - FTP_COMMAND_RET_CODE
+
+  # Negative values in these columns are treated as "not available" sentinels
+  # and converted to NaN before fitting (audit reports the counts).
+  non_negative:  # filled by registry as log1p + numeric; kept explicit here too
+    - IN_BYTES
+    - IN_PKTS
+    - OUT_BYTES
+    - OUT_PKTS
+    - FLOW_DURATION_MILLISECONDS
+    - DURATION_IN
+    - DURATION_OUT
+    - LONGEST_FLOW_PKT
+    - SHORTEST_FLOW_PKT
+    - MIN_IP_PKT_LEN
+    - MAX_IP_PKT_LEN
+    - SRC_TO_DST_SECOND_BYTES
+    - DST_TO_SRC_SECOND_BYTES
+    - RETRANSMITTED_IN_BYTES
+    - RETRANSMITTED_IN_PKTS
+    - RETRANSMITTED_OUT_BYTES
+    - RETRANSMITTED_OUT_PKTS
+    - SRC_TO_DST_AVG_THROUGHPUT
+    - DST_TO_SRC_AVG_THROUGHPUT
+    - NUM_PKTS_UP_TO_128_BYTES
+    - NUM_PKTS_128_TO_256_BYTES
+    - NUM_PKTS_256_TO_512_BYTES
+    - NUM_PKTS_512_TO_1024_BYTES
+    - NUM_PKTS_1024_TO_1514_BYTES
+    - TCP_WIN_MAX_IN
+    - TCP_WIN_MAX_OUT
+    - SRC_TO_DST_IAT_MIN
+    - SRC_TO_DST_IAT_MAX
+    - SRC_TO_DST_IAT_AVG
+    - SRC_TO_DST_IAT_STDDEV
+    - DST_TO_SRC_IAT_MIN
+    - DST_TO_SRC_IAT_MAX
+    - DST_TO_SRC_IAT_AVG
+    - DST_TO_SRC_IAT_STDDEV
+    - L4_DST_PORT
+    - MIN_TTL
+    - MAX_TTL
+    - TCP_FLAGS
+    - CLIENT_TCP_FLAGS
+    - SERVER_TCP_FLAGS
+    - DNS_QUERY_ID
+    - DNS_TTL_ANSWER
+    - FTP_COMMAND_RET_CODE

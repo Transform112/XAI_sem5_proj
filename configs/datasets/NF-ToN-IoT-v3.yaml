@@ -1,0 +1,47 @@
+# =============================================================================
+# NF-ToN-IoT-v3 - secondary dataset candidate (audited for the dataset review).
+# Published flows: 27,520,260. Class set is ToN-IoT specific; measured by the
+# identity stage (class_order null -> deterministic sorted order).
+# =============================================================================
+name: NF-ToN-IoT-v3
+schema: nf_v3
+role: secondary-candidate
+source:
+  provider: University of Queensland NIDS NetFlow-v3 family (Sarhan et al.)
+  mirror: kaggle://seyhed/nf-ton-iot-v3
+  url: https://www.kaggle.com/api/v1/datasets/download/seyhed/nf-ton-iot-v3
+  licence: research use; cite the UQ NetFlow-v3 dataset paper
+published:
+  flows: 27520260
+  # Paper Table 3 (arXiv:2503.04404v3): 10 classes, sums exactly to the total.
+  classes:
+    Benign: 16792214
+    Backdoor: 203384
+    DoS: 203456
+    DDoS: 4141256
+    Injection: 381777
+    MITM: 6013
+    Password: 1594777
+    Ransomware: 3971
+    Scanning: 1358977
+    XSS: 2834435
+  attack_total: 10728046
+  binary_label: {0: 16792214, 1: 10728046}
+  classes_count: 10
+  notes: >-
+    27,520,260 flows / 10 classes per paper arXiv:2503.04404v3 (D-020).
+    Measured CSV matches the paper exactly (identity artifact 2026-11-01); the
+    CSV spells 8 class names in lower case, recorded as documented aliases below
+    (never silently relabelled).
+# Documented class-name aliases: paper/canonical name -> raw CSV value
+# (D-020/D-031 aliasing discipline). Counts are identical after aliasing.
+class_aliases:
+  DoS: dos
+  DDoS: ddos
+  Injection: injection
+  MITM: mitm
+  Password: password
+  Ransomware: ransomware
+  Scanning: scanning
+  XSS: xss
+class_order: [Benign, Backdoor, DoS, DDoS, Injection, MITM, Password, Ransomware, Scanning, XSS]
